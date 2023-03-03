@@ -6,17 +6,20 @@ mode: queued
 # I have a smart light and a motion sensor in our walk-in wardrobe.
 # Both of these are made by IKEA and set up through Zigbee2MQTT.
 # This automation looks for the state of the motion sensor changing, and
-# switches on the light when detected. The light's brightness value is 
+# switches on the light when detected. The light's brightness value is
 # dynamic too, according to the logic in the brightness variable.
 
 trigger:
-  # trigger this automation when any motion is detected
+  # When either of these triggers are detected, run the actions defined below.
+  # The actions figure out what to do from there, so the value of the triggers
+  # does not matter at this point.
   - id: motion
     platform: state
     entity_id:
       - binary_sensor.0xb43a31fffe634b2e_occupancy
     from: "off"
     to: "on"
+
   - id: unoccupied
     platform: state
     entity_id:
@@ -25,14 +28,20 @@ trigger:
     to: "off"
 
 action:
+  # Set some variables up front, local to the actions
   - variables:
+      # Store the IDs of the entities, to save from defining them too often
       light: light.wardrobe
       occupancy: binary_sensor.0xb43a31fffe634b2e_occupancy
+
+      # light brightness values, with a dynamic brightness value based on the time
+      # and sun position
       lo: 100
       full: 254
       brightness: |
         {{ lo if now() > today_at('23:30') or
           now().time() < (state_attr('sun.sun', 'next_rising') | as_datetime | as_local).time() else full }}
+
   - choose:
       - conditions:
           - "{{ trigger.id == 'motion' }}"
