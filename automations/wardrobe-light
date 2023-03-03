@@ -1,0 +1,41 @@
+alias: Automatic wardrobe light
+description: ""
+trigger:
+  - id: motion
+    platform: state
+    entity_id:
+      - binary_sensor.0xb43a31fffe634b2e_occupancy
+    to: "on"
+    from: "off"
+  - id: unoccupied
+    platform: state
+    entity_id:
+      - binary_sensor.0xb43a31fffe634b2e_occupancy
+    from: "on"
+    to: "off"
+action:
+  - variables:
+      light: light.wardrobe
+      occupancy: binary_sensor.0xb43a31fffe634b2e_occupancy
+      lo: 26
+      mid: 125
+      brightness: |
+        {{ lo if now() > today_at('23:30') or
+          now().time() < (state_attr('sun.sun', 'next_rising') | as_datetime | as_local).time() else mid }}
+  - choose:
+      - conditions:
+          - "{{ trigger.id == 'motion' }}"
+        sequence:
+          - service: light.turn_on
+            target:
+              entity_id: "{{ light }}"
+            data:
+              brightness: "{{ brightness }}"
+      - conditions:
+          - "{{ trigger.id == 'unoccupied' }}"
+        sequence:
+          - type: turn_off
+            device_id: 282e093d4d2490215e22540f22418440
+            entity_id: light.wardrobe
+            domain: light
+mode: queued
