@@ -17,11 +17,11 @@ action:
   - variables:
       light: light.wardrobe
       occupancy: binary_sensor.0xb43a31fffe634b2e_occupancy
-      lo: 26
-      mid: 125
+      lo: 100
+      full: 254
       brightness: |
         {{ lo if now() > today_at('23:30') or
-          now().time() < (state_attr('sun.sun', 'next_rising') | as_datetime | as_local).time() else mid }}
+          now().time() < (state_attr('sun.sun', 'next_rising') | as_datetime | as_local).time() else full }}
   - choose:
       - conditions:
           - "{{ trigger.id == 'motion' }}"
