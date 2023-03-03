@@ -1,18 +1,29 @@
 alias: Automatic wardrobe light
-description: ""
+description: "Turns on the light when motion is detected, to a level dependent on the time of day"
+mode: queued
+
+# Slightly longer description:
+# I have a smart light and a motion sensor in our walk-in wardrobe.
+# Both of these are made by IKEA and set up through Zigbee2MQTT.
+# This automation looks for the state of the motion sensor changing, and
+# switches on the light when detected. The light's brightness value is 
+# dynamic too, according to the logic in the brightness variable.
+
 trigger:
+  # trigger this automation when any motion is detected
   - id: motion
     platform: state
     entity_id:
       - binary_sensor.0xb43a31fffe634b2e_occupancy
-    to: "on"
     from: "off"
+    to: "on"
   - id: unoccupied
     platform: state
     entity_id:
       - binary_sensor.0xb43a31fffe634b2e_occupancy
     from: "on"
     to: "off"
+
 action:
   - variables:
       light: light.wardrobe
@@ -38,4 +49,3 @@ action:
             device_id: 282e093d4d2490215e22540f22418440
             entity_id: light.wardrobe
             domain: light
-mode: queued
